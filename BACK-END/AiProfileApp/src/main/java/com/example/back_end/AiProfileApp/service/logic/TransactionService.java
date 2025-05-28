@@ -11,7 +11,7 @@ import java.util.List;
 public interface TransactionService {
     List<GetTransactionDTO> getTransactions();
 
-    NewTransactionDTO saveTransaction(NewTransactionDTO transactionDTO);
+    void saveTransaction(NewTransactionDTO transactionDTO);
 
     UpdateTransactionDTO updateTransaction(UpdateTransactionDTO transactionDTO);
 

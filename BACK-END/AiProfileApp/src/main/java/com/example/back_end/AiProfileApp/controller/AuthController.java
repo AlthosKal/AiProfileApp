@@ -30,20 +30,17 @@ public class AuthController {
     private final JwtUtil jwtUtil;
 
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse<TokenResponseDTO>> login(
-            @Valid @RequestBody LoginUserDTO loginUserDTO,
-            HttpServletRequest request,
-            HttpServletResponse response) {
+    public ResponseEntity<ApiResponse<TokenResponseDTO>> login(@Valid @RequestBody LoginUserDTO loginUserDTO,
+            HttpServletRequest request, HttpServletResponse response) {
 
-        TokenResponseDTO tokenResponseDTO = authService.authenticate(
-                loginUserDTO.getNameOrEmail(), loginUserDTO.getPassword(), response);
+        TokenResponseDTO tokenResponseDTO = authService.authenticate(loginUserDTO.getNameOrEmail(),
+                loginUserDTO.getPassword(), response);
 
         return ResponseEntity.ok(ApiResponse.ok("Login exitoso", tokenResponseDTO, request.getRequestURI()));
     }
 
     @PostMapping("/register")
-    public ResponseEntity<ApiResponse<Void>> register(
-            @Valid @RequestBody NewUserDTO newUserDTO,
+    public ResponseEntity<ApiResponse<Void>> register(@Valid @RequestBody NewUserDTO newUserDTO,
             HttpServletRequest request) {
 
         authService.registerUser(newUserDTO);
@@ -52,10 +49,9 @@ public class AuthController {
     }
 
     @PostMapping("/send-verification-code")
-    public ResponseEntity<ApiResponse<Void>> sendVerificationCode(
-            @Valid @RequestBody SendVerificationCodeDTO dto,
-            @RequestParam(defaultValue = "false") boolean isRegistration,
-            HttpServletRequest request) throws IOException {
+    public ResponseEntity<ApiResponse<Void>> sendVerificationCode(@Valid @RequestBody SendVerificationCodeDTO dto,
+            @RequestParam(defaultValue = "false") boolean isRegistration, HttpServletRequest request)
+            throws IOException {
 
         sengridService.sendVerificationEmail(dto, isRegistration);
         return ResponseEntity.ok(ApiResponse.ok("Código de verificación enviado", null, request.getRequestURI()));
@@ -63,8 +59,7 @@ public class AuthController {
 
     @PostMapping("/validate-verification-code")
     public ResponseEntity<ApiResponse<Void>> validateVerificationCode(
-            @Valid @RequestBody ValidateVerificationCodeDTO dto,
-            HttpServletRequest request) {
+            @Valid @RequestBody ValidateVerificationCodeDTO dto, HttpServletRequest request) {
 
         boolean isValid = sengridService.validateVerificationCode(dto);
         String message = isValid ? "Código de verificación válido" : "Código de verificación inválido";
@@ -72,8 +67,7 @@ public class AuthController {
     }
 
     @PutMapping("/change-password")
-    public ResponseEntity<ApiResponse<Void>> changePassword(
-            @Valid @RequestBody ChangePasswordDTO dto,
+    public ResponseEntity<ApiResponse<Void>> changePassword(@Valid @RequestBody ChangePasswordDTO dto,
             HttpServletRequest request) {
 
         if (dto.getCode() == null || dto.getCode().trim().isEmpty()) {
@@ -99,24 +93,25 @@ public class AuthController {
         return ResponseEntity.ok(ApiResponse.ok("Cierre de sesión exitoso", null, request.getRequestURI()));
     }
 
+    @PostMapping("/{id}")
+    public ResponseEntity<Void> deleteUser(@PathVariable String id) throws IOException {
+        userService.deteleUser(new DeleteUserDTO(id));
+        return ResponseEntity.noContent().build();
+    }
+
     @PostMapping("/user/image/add")
-    public ResponseEntity<ApiResponse<ImageDTO>> uploadProfileImage(
-            @RequestParam("image") MultipartFile image,
-            @RequestHeader("Authorization") String token,
-            HttpServletRequest request,
-            HttpServletResponse response) {
+    public ResponseEntity<ApiResponse<ImageDTO>> uploadProfileImage(@RequestParam("image") MultipartFile image,
+            @RequestHeader("Authorization") String token, HttpServletRequest request, HttpServletResponse response) {
 
         String jwtToken = token.startsWith("Bearer ") ? token.substring(7) : token;
         ImageDTO imageDTO = imageService.saveImage(image, jwtToken, response);
-        return new ResponseEntity<>(ApiResponse.ok("Imagen guardada", imageDTO, request.getRequestURI()), HttpStatus.CREATED);
+        return new ResponseEntity<>(ApiResponse.ok("Imagen guardada", imageDTO, request.getRequestURI()),
+                HttpStatus.CREATED);
     }
 
     @PutMapping("/user/image/update")
-    public ResponseEntity<ApiResponse<ImageDTO>> updateProfileImage(
-            @RequestParam("image") MultipartFile image,
-            @RequestHeader("Authorization") String token,
-            HttpServletRequest request,
-            HttpServletResponse response) {
+    public ResponseEntity<ApiResponse<ImageDTO>> updateProfileImage(@RequestParam("image") MultipartFile image,
+            @RequestHeader("Authorization") String token, HttpServletRequest request, HttpServletResponse response) {
 
         String jwtToken = token.startsWith("Bearer ") ? token.substring(7) : token;
         ImageDTO imageDTO = imageService.updateImage(image, jwtToken, response);
@@ -124,8 +119,7 @@ public class AuthController {
     }
 
     @DeleteMapping("/delete")
-    public ResponseEntity<Void> deleteProfileImage(
-            @RequestHeader("Authorization") String token,
+    public ResponseEntity<Void> deleteProfileImage(@RequestHeader("Authorization") String token,
             HttpServletResponse response) {
 
         String jwtToken = token.startsWith("Bearer ") ? token.substring(7) : token;

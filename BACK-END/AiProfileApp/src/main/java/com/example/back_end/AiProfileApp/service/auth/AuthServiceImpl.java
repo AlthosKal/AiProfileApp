@@ -1,6 +1,8 @@
 package com.example.back_end.AiProfileApp.service.auth;
 
-import com.example.back_end.AiProfileApp.dto.auth.*;
+import com.example.back_end.AiProfileApp.dto.auth.ChangePasswordDTO;
+import com.example.back_end.AiProfileApp.dto.auth.NewUserDTO;
+import com.example.back_end.AiProfileApp.dto.auth.TokenResponseDTO;
 import com.example.back_end.AiProfileApp.entity.User;
 import com.example.back_end.AiProfileApp.exception.exceptions.*;
 import com.example.back_end.AiProfileApp.jwt.JwtUtil;
@@ -40,9 +42,9 @@ public class AuthServiceImpl implements AuthService {
 
     @Autowired
     public AuthServiceImpl(UserService userService, PasswordEncoder passwordEncoder, JwtUtil jwtUtil,
-                           AuthenticationManagerBuilder authenticationManagerBuilder, CookieService cookieService,
-                           TokenBlackListService tokenBlacklistService, UserRepository userRepository,
-                           PlatformTransactionManager transactionManager, NewUserMapper newUserMapper) {
+            AuthenticationManagerBuilder authenticationManagerBuilder, CookieService cookieService,
+            TokenBlackListService tokenBlacklistService, UserRepository userRepository,
+            PlatformTransactionManager transactionManager, NewUserMapper newUserMapper) {
         this.userService = userService;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
@@ -62,11 +64,10 @@ public class AuthServiceImpl implements AuthService {
         User user = Optional.ofNullable(userService.findByNameOrEmail(nameOrEmail))
                 .orElseThrow(() -> new UserNotFoundException("Cuenta no encontrada. Verifica tu usuario o correo"));
 
-
         try {
             String emailForAuth = user.getEmail();
-            UsernamePasswordAuthenticationToken authenticationToken =
-                    new UsernamePasswordAuthenticationToken(emailForAuth, password);
+            UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+                    emailForAuth, password);
 
             Authentication authResult = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
             SecurityContextHolder.getContext().setAuthentication(authResult);

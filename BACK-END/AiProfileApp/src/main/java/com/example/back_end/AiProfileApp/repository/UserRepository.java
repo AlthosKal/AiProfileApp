@@ -13,8 +13,6 @@ public interface UserRepository extends JpaRepository<User, String> {
 
     Optional<User> findByEmail(String email);
 
-    void removeUserByEmail(@NotBlank String email);
-
     Boolean existsByEmail(String email);
 
     boolean existsByName(@NotBlank String name);

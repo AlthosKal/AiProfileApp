@@ -1,23 +1,28 @@
 package com.example.back_end.AiProfileApp.service.auth;
 
+import com.example.back_end.AiProfileApp.dto.auth.DeleteUserDTO;
 import com.example.back_end.AiProfileApp.dto.auth.UserDetailDTO;
 import com.example.back_end.AiProfileApp.entity.User;
 import com.example.back_end.AiProfileApp.mapper.auth.UserDetailMapper;
 import com.example.back_end.AiProfileApp.repository.UserRepository;
+import com.example.back_end.AiProfileApp.service.image.ImageService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.Collections;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
-
+    private final ImageService imageService;
     private final UserDetailMapper userDetailMapper;
 
     @Override
@@ -76,11 +81,6 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
     }
 
-    @Override
-    public void deletePendingEmail(String email) {
-        userRepository.removeUserByEmail(email);
-    }
-
     public User getUserDetails() {
         String nameOrEmail = SecurityContextHolder.getContext().getAuthentication().getName();
 
@@ -93,7 +93,20 @@ public class UserServiceImpl implements UserService {
         return userDetailMapper.toDto(user);
     }
 
-    public void deteleUser(User masterUser) {
-        userRepository.deleteById(masterUser.getId());
+    @Override
+    public void deteleUser(DeleteUserDTO deleteUserDTOid) throws IOException {
+        User user = userRepository.findById(deleteUserDTOid.getId())
+                .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado"));
+
+        if (user.getImage() != null) {
+            imageService.removeImage(user.getImage());
+        }
+
+        try {
+            userRepository.delete(user);
+        } catch (Exception e) {
+            log.error("Error al eliminar el usuario", e);
+            throw new RuntimeException(e);
+        }
     }
 }

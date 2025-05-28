@@ -8,7 +8,8 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.BindException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.stream.Collectors;
 
@@ -18,9 +19,9 @@ public class GlobalExceptionHandler {
 
     // Errores de validación de campos con @Valid
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiResponse<Void>> handleValidationException(MethodArgumentNotValidException ex, HttpServletRequest request) {
-        String errorMessage = ex.getBindingResult().getAllErrors()
-                .stream().map(e -> e.getDefaultMessage())
+    public ResponseEntity<ApiResponse<Void>> handleValidationException(MethodArgumentNotValidException ex,
+            HttpServletRequest request) {
+        String errorMessage = ex.getBindingResult().getAllErrors().stream().map(e -> e.getDefaultMessage())
                 .collect(Collectors.joining("; "));
 
         log.warn("Error de validación: {}", errorMessage);
@@ -30,8 +31,7 @@ public class GlobalExceptionHandler {
     // Errores de validación para @ModelAttribute y otros
     @ExceptionHandler(BindException.class)
     public ResponseEntity<ApiResponse<Void>> handleBindException(BindException ex, HttpServletRequest request) {
-        String errorMessage = ex.getBindingResult().getAllErrors()
-                .stream().map(e -> e.getDefaultMessage())
+        String errorMessage = ex.getBindingResult().getAllErrors().stream().map(e -> e.getDefaultMessage())
                 .collect(Collectors.joining("; "));
 
         log.warn("Error de enlace de datos: {}", errorMessage);
@@ -48,7 +48,8 @@ public class GlobalExceptionHandler {
 
     // Método HTTP no soportado
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
-    public ResponseEntity<ApiResponse<Void>> handleMethodNotSupported(HttpRequestMethodNotSupportedException ex, HttpServletRequest request) {
+    public ResponseEntity<ApiResponse<Void>> handleMethodNotSupported(HttpRequestMethodNotSupportedException ex,
+            HttpServletRequest request) {
         log.warn("Método no permitido: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED)
                 .body(ApiResponse.error("Método no permitido", request.getRequestURI()));
@@ -56,10 +57,10 @@ public class GlobalExceptionHandler {
 
     // Excepciones comunes del dominio
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ApiResponse<Void>> handleIllegalArgument(IllegalArgumentException ex, HttpServletRequest request) {
+    public ResponseEntity<ApiResponse<Void>> handleIllegalArgument(IllegalArgumentException ex,
+            HttpServletRequest request) {
         log.warn("Argumento inválido: {}", ex.getMessage());
-        return ResponseEntity.badRequest()
-                .body(ApiResponse.error(ex.getMessage(), request.getRequestURI()));
+        return ResponseEntity.badRequest().body(ApiResponse.error(ex.getMessage(), request.getRequestURI()));
     }
 
     // Errores no controlados

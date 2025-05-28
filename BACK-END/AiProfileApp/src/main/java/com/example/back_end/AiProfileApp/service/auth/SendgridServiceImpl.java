@@ -48,11 +48,10 @@ public class SendgridServiceImpl implements SendgridService {
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
     @Override
-    public void sendVerificationEmail(SendVerificationCodeDTO sendVerificationCodeDTO, boolean isRegistration){
+    public void sendVerificationEmail(SendVerificationCodeDTO sendVerificationCodeDTO, boolean isRegistration) {
         String email = Optional.ofNullable(sendVerificationCodeDTO.getEmail())
-                .filter(e -> isRegistration && userRepository.existsByEmail(e))
-                .orElseThrow(() -> new InvalidEmailException(
-                        isRegistration ? "Email no registrado": "Email no válido"));
+                .filter(e -> isRegistration && userRepository.existsByEmail(e)).orElseThrow(
+                        () -> new InvalidEmailException(isRegistration ? "Email no registrado" : "Email no válido"));
 
         String code = generateVerificationCode();
         verificationCodes.put(email, code);
@@ -63,7 +62,7 @@ public class SendgridServiceImpl implements SendgridService {
 
         try {
             sendEmail(email, code, isRegistration);
-        }catch (IOException e){
+        } catch (IOException e) {
             verificationCodes.remove(email);
             throw new RuntimeException("Error al enviar email: " + e.getMessage());
         }
@@ -111,8 +110,7 @@ public class SendgridServiceImpl implements SendgridService {
         Response response = sg.api(request);
 
         if (response.getStatusCode() < 200 || response.getStatusCode() >= 300) {
-            log.error("Error al enviar email. Código: {}, Respuesta: {}",
-                    response.getStatusCode(), response.getBody());
+            log.error("Error al enviar email. Código: {}, Respuesta: {}", response.getStatusCode(), response.getBody());
             throw new IOException("Error en el servicio de email: " + response.getBody());
         }
     }

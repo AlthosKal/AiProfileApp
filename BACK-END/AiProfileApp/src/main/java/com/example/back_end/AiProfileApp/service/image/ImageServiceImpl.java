@@ -110,6 +110,7 @@ public class ImageServiceImpl implements ImageService {
         return imageRepository.save(image);
     }
 
+    @Override
     public void removeImage(Image image) throws IOException {
         cloudinaryService.delete(image.getImageId());
         imageRepository.deleteById(image.getId());

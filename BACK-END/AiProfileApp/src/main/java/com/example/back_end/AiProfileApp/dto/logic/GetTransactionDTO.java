@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class GetTransactionDTO {
-    private Long id;
     private TransactionDescription description;
     private Integer amount;
 }

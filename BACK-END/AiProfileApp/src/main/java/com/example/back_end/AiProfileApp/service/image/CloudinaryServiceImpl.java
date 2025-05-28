@@ -9,7 +9,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
@@ -17,12 +16,8 @@ import java.util.Objects;
 public class CloudinaryServiceImpl implements CloudinaryService {
     private final Cloudinary cloudinary;
 
-    public CloudinaryServiceImpl() {
-        Map<String, Object> valuesMap = new HashMap<>();
-        valuesMap.put("cloud_name", System.getenv("CLOUDINARY_NAME"));
-        valuesMap.put("api_key", System.getenv("CLOUDINARY_API_KEY"));
-        valuesMap.put("api_secret", System.getenv("CLOUDINARY_API_SECRET"));
-        cloudinary = new Cloudinary(valuesMap);
+    public CloudinaryServiceImpl(Cloudinary cloudinary) {
+        this.cloudinary = cloudinary;
     }
 
     @Override
